@@ -1,0 +1,108 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+//계정 테이블
+model User{
+  userId Int @id @default(autoincrement()) @map("userId")
+  id Int @unique @map("id")
+  email String @unique @map("email")
+  password String @map("password")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  userInfo UserInfo?
+  character Character[]
+
+  @@map("User")
+}
+
+//계정정보 테이블
+model UserInfo{
+  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+  userId Int @unique @map("userId")
+  name String @map("name")
+  age Int @map("age")
+  gender String @map("gender")
+  profileImage String? @map("profileImage)
+
+  user User @relation(fields:[userId], references:[userId], onDelete:Cascade)
+
+  @@map("UserInfo")
+}
+
+//캐릭터 테이블
+model Character{
+  characterId Int @id @default(autoincrement()) @map("characterId")
+  userId Int @map("userId")
+  characterName String @unique @map("characterName")
+  characterLevel Int @map("characterLevel")
+  characterExp Int @map("characterExp")
+  health Int @map("health")
+  power Int @map("power")
+  money Int @map("money")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user User @relation(fields:[userId], references:[userId], onDelete:Cascade)
+
+  inventory Inventory[]
+  equippedItem EquippedItem[]
+
+  @@map("Character")
+}
+
+//아이템 테이블
+model Item{
+  itemId Int @id @default(autoincrement()) @map("itemId")
+  itemCode Int @unique @map("itemCode")
+  itemName String @unique @map("itemName")
+  itemPrice Int @map("itemPrice")
+  itemHealth Int @map("itemHealth")
+  itemPower Int @map("itemPower")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  inventory Inventory[]
+  equippedItem EquippedItem[]
+
+  @@map("Item")
+}
+
+//인벤토리 테이블
+model Inventory{
+  inventoryId Int @id @default(autoincrement()) @map("inventoryId")
+  characterId Int @map("characterId")
+  itemId Int @map("itemId")
+
+  character Character @relation(fields:[characterId], references:[characterId], onDelete:Cascade)
+  item Item @relation(fields:[itemId], references:[itemId], onDelete:Cascade)
+  
+  @@map("Inventory")
+}
+
+//장착아이템 테이블
+model EquippedItem{
+  equippedItemId Int @id @default(autoincrement()) @map("equippedItemId")
+  characterId Int @map("characterId")
+  itemId Int @map("itemId")
+  isEquipped Boolean @default(false)
+
+  character Character @relation(fields:[characterId], references:[characterId], onDelete:Cascade)
+  item Item @relation(fields:[itemId], references:[itemId], onDelete:Cascade)
+
+  @@map("EquippedItem")
+}

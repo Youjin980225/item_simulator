@@ -1,5 +1,5 @@
 import express from "express";
-import { prisma } from "../util/prisma/index.js";
+import { prisma } from "../utils/prisma/index.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -36,7 +36,7 @@ router.post("/create-character", authMiddleware, async (req, res, next) => {
       character: newCharacter.characterId,
     });
     //캐릭터 생성 오류
-  } catch (error) {
+  } catch (err) {
     next(err);
   }
 });
@@ -46,6 +46,7 @@ router.delete(
   "character/:characterId",
   authMiddleware,
   async (req, res, next) => {
+    const userId = req.user.userId;
     const { characterId } = req.params;
     try {
       const id = parseInt(characterId, 10);
@@ -57,7 +58,7 @@ router.delete(
         return res.status(409).json({ message: "캐릭터가 존재하지 않습니다." });
       }
       //사용자 캐릭터가 맞는 지 확인
-      if (character.userId !== userId) {
+      if (characterId.userId !== userId) {
         return res
           .status(401)
           .json({ message: "캐릭터를 삭제 할 수 없습니다." });
@@ -67,7 +68,7 @@ router.delete(
         where: { characterId: id },
       });
       return res.status(200).json({ message: "캐릭터가 삭제되었습니다." });
-    } catch (error) {
+    } catch (err) {
       next(err);
     }
   }
@@ -93,9 +94,10 @@ router.get("/character/:characterId", async (req, res, next) => {
       characterExp: character.character.Exp,
       health: character.health,
       power: character.power,
+      money: character.money,
     };
     //내 캐릭터일 경우
-    if (userID && parseInt(userId) === character.userId) {
+    if (userId && parseInt(userId) === character.userId) {
       response.money = character.money;
     }
     return res.status(200).json(response);

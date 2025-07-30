@@ -1,5 +1,5 @@
 import express from "express";
-import { prisma } from "../util/prisma/index.js";
+import { prisma } from "../utils/prisma/index.js";
 //import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -7,11 +7,11 @@ const router = express.Router();
 //아이템 생성 API
 router.post("/item", async (req, res, next) => {
   try {
-    const { itemCode, itemName, itemStat } = req.body;
+    const { itemId, itemName, itemPrice, itemStat } = req.body;
     //아이템 생성
     const newItem = await prisma.item.create({
       data: {
-        itemCode,
+        itemId,
         itemName,
         itemPrice,
         itemHealth: itemStat.itemHealth,
@@ -41,7 +41,7 @@ router.patch("/item/:itemId", async (req, res, next) => {
         .json({ message: "유효하지 않은 아이템 코드 입니다." });
     }
     //stat 유효성 검사
-    if (stat && (typeof stat !== "object" || stat === null)) {
+    if (itemStat && (typeof itemStat !== "object" || itemStat === null)) {
       return res
         .status(400)
         .json({ message: "능력치는 객체 포맷으로 전달해주세요." });
@@ -50,10 +50,10 @@ router.patch("/item/:itemId", async (req, res, next) => {
     const updateData = {};
     if (itemName) updateData.itemName = itemName;
     if (itemStat) {
-      if (typeof stat.itemHealth === "number")
-        updateData.itemHealth = stat.itemHealth;
-      if (typeof stat.itemPower === "number")
-        updateData.itemPower = stat.itemPower;
+      if (typeof itemStat.itemHealth === "number")
+        updateData.itemHealth = itemStat.itemHealth;
+      if (typeof itemStat.itemPower === "number")
+        updateData.itemPower = itemStat.itemPower;
     }
     //아이템 존재 여부 확인
     const isExistItem = await prisma.item.findFirst({ where: { itemId: id } });
@@ -80,7 +80,9 @@ router.delete("/item/:itemId", async (req, res, next) => {
   try {
     const { itemId } = req.params;
     //아이템 존재 여부 확인
-    const isExistItem = await prisma.item.findFirst({ where: { itemId: id } });
+    const isExistItem = await prisma.item.findFirst({
+      where: { itemId: itemId },
+    });
     if (!isExistItem) {
       return res
         .status(404)

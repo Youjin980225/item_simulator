@@ -1,47 +1,29 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
-}
-
-
 //계정 테이블
 model User{
   userId Int @id @default(autoincrement()) @map("userId")
-  id Int @unique @map("id")
   email String @unique @map("email")
   password String @map("password")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
-  userInfo UserInfo?
   character Character[]
+  userInfo userInfo?
 
   @@map("User")
 }
 
 //계정정보 테이블
 model UserInfo{
-  userInfoId Int @id @default(autoincrement()) @map("userInfoId")
-  userId Int @unique @map("userId")
-  name String @map("name")
-  age Int @map("age")
-  gender String @map("gender")
-  profileImage String? @map("profileImage)
+    userInfoId Int @id @default(autoincrement()) @map("userInfoId")
+    userId Int @unique @map("userId")
+    name String @map("userName")
+    age Int @map("userAge")
+    gender String @map("gender")
+    profileImag String @map("profileImage)
+    createdAt DateTime @default(now()) @map("createdAt")
+    updatedAt DateTime @updatedAt @map("updatedAt")
 
-  user User @relation(fields:[userId], references:[userId], onDelete:Cascade)
-
-  @@map("UserInfo")
+    user User @relation(fields:[userId], references:[userId], onDelete:Cascade)
 }
 
 //캐릭터 테이블
@@ -68,11 +50,10 @@ model Character{
 //아이템 테이블
 model Item{
   itemId Int @id @default(autoincrement()) @map("itemId")
-  itemCode Int @unique @map("itemCode")
   itemName String @unique @map("itemName")
-  itemPrice Int @map("itemPrice")
   itemHealth Int @map("itemHealth")
   itemPower Int @map("itemPower")
+  itemPrice Int @map("itemPrice")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 

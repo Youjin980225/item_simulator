@@ -82,9 +82,12 @@ router.post("/sign-up", async (req, res, next) => {
     //회원가입 완료
     return res.status(201).json({ message: "회원가입이 완료 되었습니다." });
   } catch (err) {
+    console.error(err);
     next(err);
   }
 });
+
+console.log("JWT_SECRET:", process.env.JWT_SECRET);
 
 //로그인 API
 router.post("/login", async (req, res, next) => {
@@ -99,9 +102,11 @@ router.post("/login", async (req, res, next) => {
   else if (!(await bcrypt.compare(password, user.password)))
     return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
   //로그인 성공시 jwt(토큰)발급
-  const token = jwt.sign({ userId: user.userId }, process.env.SECRET_KEY);
+  const token = jwt.sign({ userId: user.userId }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
   //authorization 쿠키에 Berer토큰 형식으로 JWT 지정
-  res.cookie("authorization", `Bearer${token}`);
+  res.cookie("authorization", `Bearer ${token}`);
   return res.status(200).json({ message: "로그인에 성공했습니다." });
 });
 
@@ -109,7 +114,7 @@ router.post("/login", async (req, res, next) => {
 router.get("/user", authMiddleware, async (req, res, next) => {
   const { userId } = req.user;
 
-  const user = await prisma.user.firstFind({
+  const user = await prisma.user.findFirst({
     where: { userId: +userId },
     select: {
       userId: true,

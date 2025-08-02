@@ -3,7 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
+  //output   = "node_modules/@prisma/client"
 }
 
 datasource db {
@@ -14,14 +14,14 @@ datasource db {
 //계정 테이블
 model User {
   userId Int @id @default(autoincrement()) @map("userId")
-  id Int @unique @map("id")
+  id String @unique @map("id")
   email String @unique @map("email")
   password String @map("password")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   userInfo UserInfo?
-  character Character[]
+  avatar Avatar[]
 
   @@map("User")
 }
@@ -43,12 +43,12 @@ model UserInfo {
 }
 
 //캐릭터 테이블
-model Character {
-  characterId Int @id @default(autoincrement()) @map("characterId")
+model Avatar {
+  avatarId Int @id @default(autoincrement()) @map("avatarId")
   userId Int @map("userId")
-  characterName String @unique @map("characterName")
-  characterLevel Int @map("characterLevel")
-  characterExp Int @map("characterExp")
+  avatarName String @unique @map("avatarName")
+  avatarLevel Int @map("avatarLevel")
+  avatarExp Int @map("avatarExp")
   health Int @map("health")
   power Int @map("power")
   money Int @map("money")
@@ -60,7 +60,7 @@ model Character {
   inventory Inventory[]
   equippedItem EquippedItem[]
 
-  @@map("Character")
+  @@map("Avatar")
 }
 
 //아이템 테이블
@@ -83,10 +83,10 @@ model Item {
 //인벤토리 테이블
 model Inventory {
   inventoryId Int @id @default(autoincrement()) @map("inventoryId")
-  characterId Int @map("characterId")
+  avatarId Int @map("avatarId")
   itemId Int @map("itemId")
 
-  character Character @relation(fields:[characterId], references:[characterId], onDelete:Cascade)
+  avatar Avatar @relation(fields:[avatarId], references:[avatarId], onDelete:Cascade)
   item Item @relation(fields:[itemId], references:[itemId], onDelete:Cascade)
 
   @@map("Inventory")
@@ -95,11 +95,11 @@ model Inventory {
 //장착아이템 테이블
 model EquippedItem {
   equippedItemId Int @id @default(autoincrement()) @map("equippedItemId")
-  characterId Int @map("characterId")
+  avatarId Int @map("avatarId")
   itemId Int @map("itemId")
   isEquipped Boolean @default(false)
 
-  character Character @relation(fields:[characterId], references:[characterId], onDelete:Cascade)
+  avatar Avatar @relation(fields:[avatarId], references:[avatarId], onDelete:Cascade)
   item Item @relation(fields:[itemId], references:[itemId], onDelete:Cascade)
 
   @@map("EquippedItem")

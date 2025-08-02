@@ -3,12 +3,17 @@ import { prisma } from "../utils/prisma//index.js";
 
 export default async function (req, res, next) {
   try {
-    const { authorization } = req.cookies;
+    let authorization = req.headers.authorization;
+
+    // 헤더에 토큰이 없으면, 쿠키에서 토큰 찾기
+    if (!authorization && req.cookies) {
+      authorization = req.cookies.authorization;
+    }
     if (!authorization) throw new Error("토큰이 존재하지 않습니다.");
-    const [tokenType, token] = authorization.split("");
+    const [tokenType, token] = authorization.split(" ");
     if (tokenType !== "Bearer")
       throw new Error("토큰 타입이 일치하지 않습니다.");
-    const decodedToken = jwt.verify(token, " process.env.SECRET_KEY");
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
 
     const user = await prisma.user.findFirst({
